@@ -1,0 +1,187 @@
+<head>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<section id="gtag-loader">
+  <fieldset>
+    <legend>gtag ID</legend>
+
+    <div>
+      <label>
+        <input type="radio" name="gtag-id" value="GT-NBPNJ7X" />
+        <span>GT-NBPNJ7X (gtag GA)</span>
+      </label>
+    </div>
+
+    <div>
+      <label>
+        <input type="radio" name="gtag-id" value="GT-5DDSK3P" />
+        <span>GT-5DDSK3P (gtag AW)</span>
+      </label>
+    </div>
+  </fieldset>
+
+  <label>
+    <input type="checkbox" name="enhanced" />
+    <span>enhanced conversions</span>
+  </label>
+
+  <button onclick="loadGtag()">load gtag</button>
+</section>
+
+<b id="gtag-name"></b>
+
+<section id="user-form">
+  <fieldset>
+    <legend>user form</legend>
+
+    <div>
+      <label>
+        <span>first name</span>
+        <input name="first-name" value="test first" />
+      </label>
+    </div>
+
+    <div>
+      <label>
+        <span>last name</span>
+        <input name="last-name" value="test last" />
+      </label>
+    </div>
+
+    <div>
+      <label>
+        <span>email</span>
+        <input name="email" value="test@email.com" />
+      </label>
+    </div>
+  </fieldset>
+
+  <button onclick="setUserData()">set user data</button>
+</section>
+
+<section id="gtag-events">
+  <fieldset>
+    <legend>gtag event</legend>
+
+    <div>
+      <label>
+        <input type="radio" name="gtag-event" value="foobar" />
+        <span>foobar</span>
+      </label>
+    </div>
+
+    <div>
+      <label>
+        <input type="radio" name="gtag-event" value="conversion" />
+        <span>conversion</span>
+      </label>
+    </div>
+
+    <div>
+      <label>
+        <input type="radio" name="gtag-event" value="conversion send-to" />
+        <span>conversion send-to</span>
+      </label>
+    </div>
+  </fieldset>
+
+  <button onclick="fireGtag()">fire gtag</button>
+</section>
+
+<button onclick="location.reload()">reset</button>
+
+<script>
+  const gtagLoader = document.getElementById("gtag-loader");
+  const gtagName = document.getElementById("gtag-name");
+  const userForm = document.getElementById("user-form");
+  const gtagEvents = document.getElementById("gtag-events");
+
+  (function init() {
+    gtagName.display = "none";
+    userForm.style.display = "none";
+    gtagEvents.style.display = "none";
+  })();
+
+  function loadGtag() {
+    window.dataLayer ||= [];
+
+    window.gtag = function gtag() {
+      dataLayer.push(arguments);
+    };
+
+    const gtagId = document.querySelector(
+      'input[name="gtag-id"]:checked'
+    ).value;
+
+    const enhanced = document.querySelector('input[name="enhanced"]').checked;
+
+    console.log({ gtagId, enhanced });
+
+    const script = document.createElement("script");
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${gtagId}`;
+    document.head.appendChild(script);
+
+    script.onload = () => {
+      gtag("js", new Date());
+
+      if (enhanced) {
+        gtag("config", gtagId, { allow_enhanced_conversions: true });
+      } else {
+        gtag("config", gtagId);
+      }
+
+      gtagLoader.style.display = "none";
+
+      gtagName.style.display = "block";
+      userForm.style.display = "block";
+      gtagEvents.style.display = "block";
+
+      gtagName.textContent = gtagLoader.querySelector(
+        'input[name="gtag-id"]:checked + span'
+      ).textContent;
+
+      if (enhanced) {
+        gtagName.textContent += " - enhanced";
+      }
+    };
+  }
+
+  function setUserData() {
+    const firstName = document.querySelector('input[name="first-name"]').value;
+    const lastName = document.querySelector('input[name="last-name"]').value;
+    const email = document.querySelector('input[name="email"]').value;
+
+    console.log({ firstName, lastName, email });
+
+    gtag("set", "user_data", {
+      email: email,
+      // address: {
+      first_name: firstName,
+      last_name: lastName,
+      // },
+    });
+  }
+
+  function fireGtag() {
+    const gtagEvent = document.querySelector(
+      'input[name="gtag-event"]:checked'
+    ).value;
+
+    switch (gtagEvent) {
+      case "foobar":
+        gtag("event", "foobar");
+        break;
+
+      case "conversion":
+        gtag("event", "conversion");
+        break;
+
+      case "conversion send-to":
+        gtag("event", "conversion", {
+          send_to: "AW-11335564912/gUbxCNHkm5AZEPD8m50q",
+        });
+        break;
+    }
+  }
+</script>

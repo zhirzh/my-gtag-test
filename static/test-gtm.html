@@ -1,0 +1,104 @@
+<head>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<section id="gtm-loader">
+  <fieldset>
+    <legend>gtm ID</legend>
+
+    <div>
+      <label>
+        <input
+          type="radio"
+          name="gtm-id"
+          value="GTM-KWRCDM5M"
+          checked
+          disabled
+        />
+        <span>GTM-KWRCDM5M</span>
+      </label>
+    </div>
+  </fieldset>
+
+  <button onclick="loadGtm()">load gtm</button>
+</section>
+
+<section id="user-form">
+  <fieldset>
+    <legend>user data</legend>
+
+    <div>
+      <label>
+        <span>first name</span>
+        <input id="first-name" name="first-name" value="test first" />
+      </label>
+    </div>
+
+    <div>
+      <label>
+        <span>last name</span>
+        <input id="last-name" name="last-name" value="test last" />
+      </label>
+    </div>
+
+    <div>
+      <label>
+        <span>email</span>
+        <input id="email" name="email" value="test@email.com" />
+      </label>
+    </div>
+  </fieldset>
+
+  <button id="set-user" onmousedown="setUserData()">set user</button>
+</section>
+
+<button onclick="location.reload()">reset</button>
+
+<script>
+  const gtmLoader = document.getElementById("gtm-loader");
+  const userForm = document.getElementById("user-form");
+
+  (function init() {
+    userForm.style.display = "none";
+  })();
+
+  function loadGtm() {
+    window.dataLayer ||= [];
+    window.dataLayer.push({
+      event: "gtm.js",
+      "gtm.start": new Date().getTime(),
+    });
+
+    window.gtag = function gtag() {
+      window.dataLayer.push(arguments);
+    };
+
+    const gtmId = document.querySelector('input[name="gtm-id"]:checked').value;
+
+    const script = document.createElement("script");
+    script.src = `https://www.googletagmanager.com/gtm.js?id=${gtmId}`;
+    document.head.appendChild(script);
+
+    script.onload = () => {
+      gtmLoader.style.display = "none";
+
+      userForm.style.display = "block";
+    };
+  }
+
+  function setUserData() {
+    const firstName = document.querySelector('input[name="first-name"]').value;
+    const lastName = document.querySelector('input[name="last-name"]').value;
+    const email = document.querySelector('input[name="email"]').value;
+
+    console.log({ firstName, lastName, email });
+
+    gtag("set", "user_data", {
+      email: email,
+      address: {
+        first_name: firstName,
+        last_name: lastName,
+      },
+    });
+  }
+</script>
